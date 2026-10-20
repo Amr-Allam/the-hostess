@@ -12,19 +12,19 @@ Customers scan one QR code (or visit the site) to view the menu, order, and rese
 
 ## 2. Stack
 
-| Part | Choice |
-|---|---|
-| Client | React + Vite, React Router, Tailwind CSS, Zustand (cart), Recharts (reports), socket.io-client |
-| Server | Node.js + Express, Mongoose, Zod, jsonwebtoken, bcrypt, helmet, cors, express-rate-limit, socket.io |
-| Database | MongoDB Atlas |
-| Images | Cloudinary (server uploads via multer) |
-| Hosting | Vercel (client), Render (server) |
-| Language | JavaScript (ES modules) on both sides |
+| Part     | Choice                                                                                              |
+| -------- | --------------------------------------------------------------------------------------------------- |
+| Client   | React + Vite, React Router, Tailwind CSS, Zustand (cart), Recharts (reports), socket.io-client      |
+| Server   | Node.js + Express, Mongoose, Zod, jsonwebtoken, bcrypt, helmet, cors, express-rate-limit, socket.io |
+| Database | MongoDB Atlas                                                                                       |
+| Images   | Cloudinary (server uploads via multer)                                                              |
+| Hosting  | Vercel (client), Render (server)                                                                    |
+| Language | JavaScript (ES modules) on both sides                                                               |
 
 ## 3. Folder structure
 
 ```
-restaurant-system/
+the-hostess/
 ├── SPEC.md
 ├── PROGRESS.md
 ├── client/
@@ -68,6 +68,7 @@ restaurant-system/
 ## 5. Environment variables
 
 **server/.env**
+
 ```
 PORT=5000
 MONGODB_URI=
@@ -85,6 +86,7 @@ SEED_KITCHEN_PASSWORD=
 ```
 
 **client/.env**
+
 ```
 VITE_API_URL=http://localhost:5000
 VITE_CURRENCY=EGP
@@ -97,6 +99,7 @@ VITE_CURRENCY=EGP
 **Category**: `name`, `order` (number, for sorting)
 
 **MenuItem**
+
 - `name`, `description`, `price` (int), `imageUrl`, `category` (ref Category), `available` (bool, default true)
 - `optionGroups`: array of
   - `name` (e.g. "Size")
@@ -107,17 +110,20 @@ VITE_CURRENCY=EGP
 **Table**: `number` (unique), `capacity`
 
 **Order**
+
 - `orderType` (`"dine-in"` | `"takeaway"`)
 - `tableNumber` (required if dine-in)
 - `items`: array of `{ menuItem (ref), name, unitPrice, quantity, selectedOptions: [{ groupName, choiceName, priceDelta }], note }`. Name and prices are **snapshotted** at order time.
 - `customerNote`, `status`, `total` (int), `createdAt`, `updatedAt`
 
 **Reservation**
+
 - `name`, `phone`, `partySize`, `date`, `startTime`, `endTime`
 - `startMinutes`, `endMinutes` (ints, minutes from midnight, used for overlap queries)
 - `table` (ref Table), `status` (`"confirmed"` | `"cancelled"`)
 
 **Settings** (single document)
+
 - `openingHours`: for each weekday `{ open: "HH:mm", close: "HH:mm", closed: bool }`
 - `slotLengthMinutes` (default 30), `reservationDurationMinutes` (default 90)
 
@@ -126,6 +132,7 @@ VITE_CURRENCY=EGP
 **Order status flow:** `placed → preparing → ready → served`. Cancel allowed from `placed` or `preparing` → `cancelled`. No other transitions.
 
 **Order pricing (server-side, never trust the client):**
+
 1. Load each `menuItem` from the database. Reject if missing or `available: false`.
 2. Validate selected options: each group exists, `single` groups have at most one choice, `required` groups have at least one, choices exist.
 3. `unitPrice = item.price + sum(selected priceDeltas)`
@@ -135,6 +142,7 @@ VITE_CURRENCY=EGP
 **Dine-in orders:** `tableNumber` must match an existing Table.
 
 **Reservation availability:**
+
 - Slots are generated from opening hours and `slotLengthMinutes`. A slot is only offered if `start + reservationDuration ≤ closing time`.
 - A table is free for a range if `capacity ≥ partySize` and no `confirmed` reservation on that table and date overlaps it. Overlap: `existing.startMinutes < newEnd && existing.endMinutes > newStart`.
 - A slot is available if at least one table is free.
@@ -147,44 +155,44 @@ VITE_CURRENCY=EGP
 
 **Public**
 
-| Method | Path | Purpose |
-|---|---|---|
-| GET | `/api/menu` | Categories with their available items |
-| POST | `/api/orders` | Place an order. Body: `{ orderType, tableNumber?, customerNote?, items: [{ menuItemId, quantity, note?, selectedOptions: [{ groupName, choiceName }] }] }` |
-| GET | `/api/orders/:id` | Order status for the customer status page |
-| GET | `/api/reservations/availability?date=&partySize=` | Slots: `[{ startTime, available }]` |
-| POST | `/api/reservations` | Body: `{ name, phone, partySize, date, startTime }` |
+| Method | Path                                              | Purpose                                                                                                                                                    |
+| ------ | ------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| GET    | `/api/menu`                                       | Categories with their available items                                                                                                                      |
+| POST   | `/api/orders`                                     | Place an order. Body: `{ orderType, tableNumber?, customerNote?, items: [{ menuItemId, quantity, note?, selectedOptions: [{ groupName, choiceName }] }] }` |
+| GET    | `/api/orders/:id`                                 | Order status for the customer status page                                                                                                                  |
+| GET    | `/api/reservations/availability?date=&partySize=` | Slots: `[{ startTime, available }]`                                                                                                                        |
+| POST   | `/api/reservations`                               | Body: `{ name, phone, partySize, date, startTime }`                                                                                                        |
 
 **Auth**
 
-| Method | Path | Purpose |
-|---|---|---|
-| POST | `/api/auth/login` | `{ email, password }` → `{ token, user: { email, role } }` |
-| GET | `/api/auth/me` | Current user (any staff) |
+| Method | Path              | Purpose                                                    |
+| ------ | ----------------- | ---------------------------------------------------------- |
+| POST   | `/api/auth/login` | `{ email, password }` → `{ token, user: { email, role } }` |
+| GET    | `/api/auth/me`    | Current user (any staff)                                   |
 
 There is **no signup route**. Staff accounts are created by `scripts/seed.js` and `scripts/create-user.js`.
 
 **Kitchen + owner**
 
-| Method | Path | Purpose |
-|---|---|---|
-| GET | `/api/staff/orders?status=active` | Active orders (`placed`, `preparing`, `ready`) |
-| PATCH | `/api/staff/orders/:id/status` | Body: `{ status }`, validated against the flow |
+| Method | Path                              | Purpose                                        |
+| ------ | --------------------------------- | ---------------------------------------------- |
+| GET    | `/api/staff/orders?status=active` | Active orders (`placed`, `preparing`, `ready`) |
+| PATCH  | `/api/staff/orders/:id/status`    | Body: `{ status }`, validated against the flow |
 
 **Owner only**
 
-| Method | Path | Purpose |
-|---|---|---|
-| POST/PUT/DELETE | `/api/owner/categories` (`/:id`) | Category CRUD |
-| POST/PUT/DELETE | `/api/owner/menu-items` (`/:id`) | Menu item CRUD |
-| GET | `/api/owner/menu-items` | All items including unavailable |
-| POST | `/api/owner/uploads` | Image upload → `{ url }` |
-| GET/POST/PUT/DELETE | `/api/owner/tables` (`/:id`) | Table CRUD |
-| GET | `/api/owner/reservations?date=` | List reservations |
-| PATCH | `/api/owner/reservations/:id/status` | Cancel a reservation |
-| GET/PUT | `/api/owner/settings` | Opening hours, slot length, duration |
-| GET | `/api/owner/reports/daily?from=&to=` | Per-day sales, order count, average order value |
-| GET | `/api/owner/reports/top-items?from=&to=` | Top items |
+| Method              | Path                                     | Purpose                                         |
+| ------------------- | ---------------------------------------- | ----------------------------------------------- |
+| POST/PUT/DELETE     | `/api/owner/categories` (`/:id`)         | Category CRUD                                   |
+| POST/PUT/DELETE     | `/api/owner/menu-items` (`/:id`)         | Menu item CRUD                                  |
+| GET                 | `/api/owner/menu-items`                  | All items including unavailable                 |
+| POST                | `/api/owner/uploads`                     | Image upload → `{ url }`                        |
+| GET/POST/PUT/DELETE | `/api/owner/tables` (`/:id`)             | Table CRUD                                      |
+| GET                 | `/api/owner/reservations?date=`          | List reservations                               |
+| PATCH               | `/api/owner/reservations/:id/status`     | Cancel a reservation                            |
+| GET/PUT             | `/api/owner/settings`                    | Opening hours, slot length, duration            |
+| GET                 | `/api/owner/reports/daily?from=&to=`     | Per-day sales, order count, average order value |
+| GET                 | `/api/owner/reports/top-items?from=&to=` | Top items                                       |
 
 Auth middleware reads `Authorization: Bearer <token>`. Role middleware: `/api/staff/*` allows `kitchen` and `owner`; `/api/owner/*` allows `owner`.
 
@@ -194,11 +202,11 @@ Public endpoints (`POST /api/orders`, `POST /api/reservations`, availability, lo
 
 **Connection:** the client connects to the server. Staff pass their JWT in `auth: { token }`; the server verifies it and joins the socket to the `kitchen` room (kitchen and owner roles).
 
-| Direction | Event | Payload | Purpose |
-|---|---|---|---|
-| client → server | `order:join` | `{ orderId }` | Customer joins room `order:<id>` |
-| server → `kitchen` | `order:new` | full order | New order arrived |
-| server → `kitchen` + `order:<id>` | `order:updated` | full order | Status changed |
+| Direction                         | Event           | Payload       | Purpose                          |
+| --------------------------------- | --------------- | ------------- | -------------------------------- |
+| client → server                   | `order:join`    | `{ orderId }` | Customer joins room `order:<id>` |
+| server → `kitchen`                | `order:new`     | full order    | New order arrived                |
+| server → `kitchen` + `order:<id>` | `order:updated` | full order    | Status changed                   |
 
 The REST endpoint changes the data first, then emits the event. Sockets never write to the database.
 
@@ -219,6 +227,7 @@ Owner dashboard sections: Reports, Menu management, Reservations, Tables, Settin
 Mark each item done in PROGRESS.md.
 
 **Phase 1: Foundation**
+
 - Monorepo, `.gitignore`, `.env.example` files
 - Express app, Mongo connection, central error handler, health route
 - All Mongoose models
@@ -226,31 +235,37 @@ Mark each item done in PROGRESS.md.
 - `seed.js`: owner, kitchen, sample categories, items, tables, default settings
 
 **Phase 2: Menu**
+
 - Owner CRUD for categories and menu items, image upload
 - Client scaffold, routing, Tailwind
 - Staff login page and protected routes
 - Customer menu page with categories, images, option selection
 
 **Phase 3: Cart and orders**
+
 - Zustand cart, cart page, checkout (table number or takeaway)
 - `POST /api/orders` with server-side pricing
 - Order status page (polling for now)
 
 **Phase 4: Realtime**
+
 - Socket.io server and client setup
 - Kitchen display with live orders and status buttons
 - Customer status page updates live
 
 **Phase 5: Reservations**
+
 - Settings and Tables management
 - Availability endpoint and booking form
 - Owner reservation list with cancel
 
 **Phase 6: Owner dashboard**
+
 - Report endpoints (aggregation)
 - Dashboard UI with Recharts: daily sales, order count, average order value, top items
 
 **Phase 7: Polish and deploy**
+
 - Mobile responsiveness, loading and error states
 - Tests for order pricing and reservation availability
 - Deploy to Atlas, Render, Vercel; generate the QR code from the live URL
