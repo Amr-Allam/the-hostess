@@ -27,6 +27,7 @@ Customers scan one QR code (or visit the site) to view the menu, order, and rese
 the-hostess/
 ├── SPEC.md
 ├── PROGRESS.md
+├── AGENTS.md
 ├── client/
 │   └── src/
 │       ├── api/            # fetch wrappers (one file per resource)
@@ -124,7 +125,7 @@ VITE_CURRENCY=EGP
 
 **Settings** (single document)
 
-- `openingHours`: for each weekday `{ open: "HH:mm", close: "HH:mm", closed: bool }`
+- `openingHours`: for each weekday (keys lowercase `monday`…`sunday`) `{ open: "HH:mm", close: "HH:mm", closed: bool }`
 - `slotLengthMinutes` (default 30), `reservationDurationMinutes` (default 90)
 
 ## 7. Business rules
@@ -230,6 +231,7 @@ Mark each item done in PROGRESS.md.
 
 - Monorepo, `.gitignore`, `.env.example` files
 - Express app, Mongo connection, central error handler, health route
+- Zod `validate` middleware
 - All Mongoose models
 - Auth: login, `/me`, auth and role middleware
 - `seed.js`: owner, kitchen, sample categories, items, tables, default settings

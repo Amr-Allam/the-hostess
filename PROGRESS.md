@@ -12,4 +12,3 @@
 ## Notes
 
 - `GET /api/health` returns `{ status, db }`.
-- Settings `openingHours` keys are lowercase `monday`…`sunday`.
