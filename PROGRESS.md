@@ -4,11 +4,7 @@
 
 - [x] Monorepo, `.gitignore`, `.env.example` files
 - [x] Express app, Mongo connection, central error handler, health route
-- [ ] Zod `validate` middleware
-- [ ] All Mongoose models
+- [x] Zod `validate` middleware
+- [x] All Mongoose models
 - [ ] Auth: login, `/me`, auth and role middleware
 - [ ] `seed.js`
-
-## Notes
-
-- `GET /api/health` returns `{ status, db }`.
