@@ -7,4 +7,11 @@
 - [x] Zod `validate` middleware
 - [x] All Mongoose models
 - [x] Auth: login, `/me`, auth and role middleware
-- [ ] `seed.js`
+- [x] `seed.js`
+
+## Notes
+
+- Routes: validate({ body, query, params }) puts checked data on `req.validated`; controllers read only from it.
+- Errors: throw `httpError(status, message, details)` (`utils/httpError.js`); Express 5 forwards async errors, so no try/catch wrappers.
+- Auth: `requireAuth` (loads the user from the DB on every request, sets `req.user`) then `requireRole(...)`. Rate limiters come from `createLimiter` in `middleware/rateLimit.js`.
+- Money is in piastres (EGP 85 = 8500). Seed accounts come from `SEED_*` in `server/.env`; `npm run seed` is safe to re-run.
