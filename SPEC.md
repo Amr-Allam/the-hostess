@@ -265,6 +265,7 @@ Mark each item done in PROGRESS.md.
 
 - Report endpoints (aggregation)
 - Dashboard UI with Recharts: daily sales, order count, average order value, top items
+- Owner dashboard sections: Menu management (categories, items, option groups, image upload), Reservations, Tables, Settings
 
 **Phase 7: Polish and deploy**
 
