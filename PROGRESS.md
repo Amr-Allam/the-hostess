@@ -13,7 +13,7 @@
 
 - [x] Owner CRUD for categories and menu items (image upload still pending, see below)
 - [x] Image upload (`POST /api/owner/uploads`)
-- [ ] Client scaffold, routing, Tailwind
+- [x] Client scaffold, routing, Tailwind
 - [ ] Staff login page and protected routes
 - [ ] Customer menu page with categories, images, option selection
 
