@@ -1,5 +1,7 @@
 import { Router } from "express";
 import * as menu from "../controllers/menuController.js";
+import * as uploads from "../controllers/uploadController.js";
+import { uploadImage } from "../middleware/upload.js";
 import { validate } from "../middleware/validate.js";
 import { requireAuth } from "../middleware/auth.js";
 import { requireRole } from "../middleware/role.js";
@@ -46,5 +48,7 @@ router.delete(
   validate({ params: idParamsSchema }),
   menu.deleteMenuItem,
 );
+
+router.post("/uploads", uploadImage, uploads.uploadImage);
 
 export default router;
