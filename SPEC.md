@@ -156,13 +156,13 @@ VITE_CURRENCY=EGP
 
 **Public**
 
-| Method | Path                                              | Purpose                                                                                                                                                    |
-| ------ | ------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| GET    | `/api/menu`                                       | Categories with their available items                                                                                                                      |
-| POST   | `/api/orders`                                     | Place an order. Body: `{ orderType, tableNumber?, customerNote?, items: [{ menuItemId, quantity, note?, selectedOptions: [{ groupName, choiceName }] }] }` |
-| GET    | `/api/orders/:id`                                 | Order status for the customer status page                                                                                                                  |
-| GET    | `/api/reservations/availability?date=&partySize=` | Slots: `[{ startTime, available }]`                                                                                                                        |
-| POST   | `/api/reservations`                               | Body: `{ name, phone, partySize, date, startTime }`                                                                                                        |
+| Method | Path                                              | Purpose                                                                                                                                                                                        |
+| ------ | ------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| GET    | `/api/menu`                                       | Categories with their available items                                                                                                                                                          |
+| POST   | `/api/orders`                                     | Place an order. Body: `{ orderType, tableNumber?, customerNote?, items: [{ menuItemId, quantity, note?, selectedOptions: [{ groupName, choiceName }] }] }`. Returns `201` with the full order. |
+| GET    | `/api/orders/:id`                                 | Order status for the customer status page. Returns the full order; `404` if unknown.                                                                                                           |
+| GET    | `/api/reservations/availability?date=&partySize=` | Slots: `[{ startTime, available }]`                                                                                                                                                            |
+| POST   | `/api/reservations`                               | Body: `{ name, phone, partySize, date, startTime }`                                                                                                                                            |
 
 **Auth**
 
