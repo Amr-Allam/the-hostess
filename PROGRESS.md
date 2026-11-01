@@ -11,7 +11,7 @@
 
 ## Phase 2: Menu
 
-- [x] Owner CRUD for categories and menu items (image upload still pending, see below)
+- [x] Owner CRUD for categories and menu items
 - [x] Image upload (`POST /api/owner/uploads`)
 - [x] Client scaffold, routing, Tailwind
 - [x] Staff login page and protected routes
