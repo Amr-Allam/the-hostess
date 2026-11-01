@@ -14,7 +14,7 @@
 - [x] Owner CRUD for categories and menu items (image upload still pending, see below)
 - [x] Image upload (`POST /api/owner/uploads`)
 - [x] Client scaffold, routing, Tailwind
-- [ ] Staff login page and protected routes
+- [x] Staff login page and protected routes
 - [ ] Customer menu page with categories, images, option selection
 
 ## Notes
@@ -26,3 +26,4 @@
 - Menu: public `GET /api/menu` returns categories sorted by `order`, each with its available items (empty categories included; the client hides them). Owner routes live in `routes/ownerRoutes.js`, gated once by `requireAuth` + `requireRole("owner")`.
 - Menu items: option group names must be unique per item, choice names unique per group, and every group needs at least one choice. A category with any items (hidden ones too) can't be deleted (`409`). Items are hard-deleted.
 - Uploads: `POST /api/owner/uploads` takes one file in the `image` form field (JPEG, PNG or WebP, max 5 MB, held in memory by multer) and streams it to Cloudinary into the `the-hostess` asset folder. It returns `201 { url }`, `400` for a bad or missing file, and `503` if the `CLOUDINARY_*` variables are not set.
+- Client auth: `AuthProvider` (React context) keeps the JWT in localStorage (`hostess_token`) and checks it with `/api/auth/me` on load. `ProtectedRoute roles={[...]}` redirects to `/staff/login` when logged out or the role doesn't match. `STAFF_HOME` in `features/staff/routes.js` maps each role to its landing page.

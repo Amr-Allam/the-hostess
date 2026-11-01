@@ -1,5 +1,6 @@
 import { Route, Routes } from "react-router";
 import CustomerLayout from "./components/CustomerLayout.jsx";
+import ProtectedRoute from "./features/staff/ProtectedRoute.jsx";
 import CartPage from "./pages/CartPage.jsx";
 import DashboardPage from "./pages/DashboardPage.jsx";
 import KitchenPage from "./pages/KitchenPage.jsx";
@@ -20,8 +21,22 @@ export default function App() {
       </Route>
 
       <Route path="/staff/login" element={<StaffLoginPage />} />
-      <Route path="/staff/kitchen" element={<KitchenPage />} />
-      <Route path="/staff/dashboard" element={<DashboardPage />} />
+      <Route
+        path="/staff/kitchen"
+        element={
+          <ProtectedRoute roles={["kitchen", "owner"]}>
+            <KitchenPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/staff/dashboard"
+        element={
+          <ProtectedRoute roles={["owner"]}>
+            <DashboardPage />
+          </ProtectedRoute>
+        }
+      />
 
       <Route path="*" element={<NotFoundPage />} />
     </Routes>
