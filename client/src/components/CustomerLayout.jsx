@@ -1,9 +1,15 @@
-import { NavLink, Outlet } from "react-router";
+import { NavLink, Outlet, useLocation } from "react-router";
+import { getLastOrderId } from "../lib/lastOrder.js";
 
 const linkClass = ({ isActive }) =>
   `px-3 py-2 text-sm font-medium ${isActive ? "text-amber-700" : "text-stone-600"}`;
 
 export default function CustomerLayout() {
+  // useLocation re-renders the layout on every navigation, so the link
+  // appears right after an order is placed.
+  useLocation();
+  const lastOrderId = getLastOrderId();
+
   return (
     <div className="min-h-screen bg-stone-50 text-stone-900">
       <header className="border-b border-stone-200 bg-white">
@@ -15,6 +21,11 @@ export default function CustomerLayout() {
           <NavLink to="/reserve" className={linkClass}>
             Reserve
           </NavLink>
+          {lastOrderId && (
+            <NavLink to={`/order/${lastOrderId}`} className={linkClass}>
+              Your order
+            </NavLink>
+          )}
           <NavLink to="/cart" className={linkClass}>
             Cart
           </NavLink>

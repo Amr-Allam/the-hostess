@@ -1,9 +1,12 @@
 import { useEffect, useState } from "react";
 import { formatPrice, formatPriceDelta } from "../../lib/format.js";
+import { MAX_QUANTITY, useCartStore } from "../../store/cartStore.js";
 
 export default function ItemOptionsModal({ item, onClose }) {
   // { [groupName]: [selected choice names] }
   const [selected, setSelected] = useState({});
+  const [quantity, setQuantity] = useState(1);
+  const addLine = useCartStore((state) => state.addLine);
 
   useEffect(() => {
     const onKeyDown = (e) => e.key === "Escape" && onClose();
@@ -37,6 +40,26 @@ export default function ItemOptionsModal({ item, onClose }) {
   const missingRequired = item.optionGroups.filter(
     (group) => group.required && !(selected[group.name]?.length > 0),
   );
+
+  function handleAdd() {
+    const selectedOptions = item.optionGroups.flatMap((group) =>
+      group.choices
+        .filter((choice) => (selected[group.name] ?? []).includes(choice.name))
+        .map((choice) => ({
+          groupName: group.name,
+          choiceName: choice.name,
+          priceDelta: choice.priceDelta,
+        })),
+    );
+    addLine({
+      menuItemId: item._id,
+      name: item.name,
+      unitPrice,
+      quantity,
+      selectedOptions,
+    });
+    onClose();
+  }
 
   return (
     <div
@@ -119,16 +142,47 @@ export default function ItemOptionsModal({ item, onClose }) {
         })}
 
         <div className="mt-5 border-t border-stone-200 pt-4">
-          <p className="flex justify-between font-semibold">
-            <span>Price</span>
-            <span>{formatPrice(unitPrice)}</span>
-          </p>
+          <div className="flex items-center justify-between">
+            <span className="text-sm font-medium">Quantity</span>
+            <div className="flex items-center gap-3">
+              <button
+                type="button"
+                aria-label="Decrease quantity"
+                disabled={quantity <= 1}
+                onClick={() => setQuantity((q) => q - 1)}
+                className="h-8 w-8 rounded border border-stone-300 disabled:opacity-40"
+              >
+                −
+              </button>
+              <span className="w-6 text-center">{quantity}</span>
+              <button
+                type="button"
+                aria-label="Increase quantity"
+                disabled={quantity >= MAX_QUANTITY}
+                onClick={() => setQuantity((q) => q + 1)}
+                className="h-8 w-8 rounded border border-stone-300 disabled:opacity-40"
+              >
+                +
+              </button>
+            </div>
+          </div>
+
           {missingRequired.length > 0 && (
             <p className="mt-2 text-sm text-red-600">
               Choose an option for:{" "}
               {missingRequired.map((g) => g.name).join(", ")}
             </p>
           )}
+
+          <button
+            type="button"
+            onClick={handleAdd}
+            disabled={missingRequired.length > 0}
+            className="mt-4 flex w-full justify-between rounded bg-stone-800 px-4 py-3 font-semibold text-white disabled:opacity-40"
+          >
+            <span>Add to cart</span>
+            <span>{formatPrice(unitPrice * quantity)}</span>
+          </button>
         </div>
       </div>
     </div>
