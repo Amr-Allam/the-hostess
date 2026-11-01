@@ -16,3 +16,10 @@ export const loginLimiter = createLimiter({
   limit: 10,
   message: "Too many login attempts, please try again later",
 });
+
+// Looser than login: diners on the restaurant's Wi-Fi share one IP.
+export const orderLimiter = createLimiter({
+  windowMs: 15 * 60 * 1000,
+  limit: 30,
+  message: "Too many orders, please try again later",
+});
