@@ -175,10 +175,10 @@ There is **no signup route**. Staff accounts are created by `scripts/seed.js` an
 
 **Kitchen + owner**
 
-| Method | Path                              | Purpose                                        |
-| ------ | --------------------------------- | ---------------------------------------------- |
-| GET    | `/api/staff/orders?status=active` | Active orders (`placed`, `preparing`, `ready`) |
-| PATCH  | `/api/staff/orders/:id/status`    | Body: `{ status }`, validated against the flow |
+| Method | Path                              | Purpose                                                                                                            |
+| ------ | --------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| GET    | `/api/staff/orders?status=active` | Active orders (`placed`, `preparing`, `ready`), oldest first.                                                      |
+| PATCH  | `/api/staff/orders/:id/status`    | Body: `{ status }`, validated against the flow. Returns the updated order; `409` if the transition is not allowed. |
 
 **Owner only**
 
@@ -201,7 +201,7 @@ Public endpoints (`POST /api/orders`, `POST /api/reservations`, availability, lo
 
 ## 9. Socket.io events
 
-**Connection:** the client connects to the server. Staff pass their JWT in `auth: { token }`; the server verifies it and joins the socket to the `kitchen` room (kitchen and owner roles).
+**Connection:** the client connects to the server. Staff pass their JWT in `auth: { token }`; the server verifies it and joins the socket to the `kitchen` room (kitchen and owner roles). A connection without a token is a customer connection. A token that is invalid or expired refuses the connection.
 
 | Direction                         | Event           | Payload       | Purpose                          |
 | --------------------------------- | --------------- | ------------- | -------------------------------- |
@@ -252,6 +252,7 @@ Mark each item done in PROGRESS.md.
 **Phase 4: Realtime**
 
 - Socket.io server and client setup
+- Staff order endpoints (`GET /api/staff/orders`, `PATCH /api/staff/orders/:id/status`)
 - Kitchen display with live orders and status buttons
 - Customer status page updates live
 
