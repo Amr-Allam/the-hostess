@@ -23,6 +23,13 @@
 - [x] `POST /api/orders` with server-side pricing
 - [x] Order status page (polling for now)
 
+## Phase 4: Realtime
+
+- [x] Socket.io server and client setup
+- [x] Staff order endpoints (`GET /api/staff/orders`, `PATCH /api/staff/orders/:id/status`)
+- [x] Kitchen display with live orders and status buttons
+- [x] Customer status page updates live
+
 ## Notes
 
 - Routes: validate({ body, query, params }) puts checked data on `req.validated`; controllers read only from it.
@@ -36,3 +43,6 @@
 - Client menu: `MenuPage` fetches `/api/menu` and hides categories with no items. `ItemOptionsModal` handles option selection with a live price; its Add to cart button and quantity come in Phase 3. Prices are formatted by `lib/format.js` from piastres using `VITE_CURRENCY`.
 - Orders: `POST /api/orders` returns `201` with the full order; `GET /api/orders/:id` returns the same shape (`404` if unknown, `400` for a malformed id). Limits: 1-50 lines, quantity 1-20, item note 200 characters, order note 500. `tableNumber` is required for dine-in (must match a Table) and not stored for takeaway. Pricing lives in `priceOrder` (`services/pricing.js`), a pure function: it takes menu items already loaded from the database and returns `{ lines, total }`, or a `400` listing every problem (missing or unavailable item, bad option, missing required group, negative unit price). `POST` is rate limited by `orderLimiter` (30 per 15 min per IP); `GET` is not.
 - Client cart: Zustand store in `store/cartStore.js`, persisted to localStorage under `hostess_cart`. Identical item plus options merges into one line; the stored prices are for display only, the server recomputes everything. After a successful order the cart is cleared and the id is saved under `hostess_last_order` (`lib/lastOrder.js`), which drives the "Your order" nav link. `OrderStatusPage` polls every 5 seconds until `served` or `cancelled`; Phase 4 replaces this with sockets.
+- Realtime: `sockets/index.js` attaches Socket.io to the HTTP server in `server.js`. A connection with no token is a customer; a valid kitchen/owner token joins the `kitchen` room; an invalid or expired token is refused. Controllers call `emitOrderNew` / `emitOrderUpdated` after the database write; the helpers do nothing if sockets aren't initialized. `order:join` takes an optional acknowledgment (sent even for an invalid id) and ignores invalid ids. The token is checked once at connect, so a socket open past expiry keeps receiving until it reconnects.
+- Staff orders: `GET /api/staff/orders?status=active` (`status` must be `active`; oldest first) and `PATCH /api/staff/orders/:id/status` (`400` bad id or status, `404` unknown, `409` forbidden transition). The update is one atomic `findOneAndUpdate` filtered by the allowed source statuses, so simultaneous updates can't both succeed. Transition rules live in `services/orders.js`.
+- Client realtime: `lib/socket.js` (`createSocket(token?)`), one connection per page, closed on cleanup. `useKitchenOrders` refetches the active list on every connect; `useLiveOrder` joins the order's room, waits for the acknowledgment, then fetches. Both ignore older copies by `updatedAt`. `OrderStatusPage` no longer polls and closes its socket once the order is served or cancelled.

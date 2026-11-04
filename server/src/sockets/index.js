@@ -34,10 +34,11 @@ export function initSockets(httpServer) {
   io.on("connection", (socket) => {
     if (socket.data.isStaff) socket.join(KITCHEN_ROOM);
 
-    socket.on("order:join", (payload) => {
+    // The optional ack (acknowledgment) tells the client the join is done, so it can safely fetch the order without missing an update. It is sent even for an invalid id, so the client never waits forever.
+    socket.on("order:join", (payload, ack) => {
       const parsed = objectId.safeParse(payload?.orderId);
-      if (!parsed.success) return;
-      socket.join(orderRoom(parsed.data.toLowerCase()));
+      if (parsed.success) socket.join(orderRoom(parsed.data.toLowerCase()));
+      if (typeof ack === "function") ack();
     });
   });
 

@@ -1,51 +1,14 @@
-import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router";
-import { getOrder } from "../api/orders.js";
+import {
+  FINAL_STATUSES,
+  useLiveOrder,
+} from "../features/orders/useLiveOrder.js";
 import { formatPrice, formatPriceDelta } from "../lib/format.js";
-import { clearLastOrderId, getLastOrderId } from "../lib/lastOrder.js";
 
-const POLL_MS = 5000;
-const FINAL_STATUSES = ["served", "cancelled"];
 const STEPS = ["placed", "preparing", "ready", "served"];
 
 function OrderStatus({ id }) {
-  const [order, setOrder] = useState(null);
-  const [error, setError] = useState("");
-  const [notFound, setNotFound] = useState(false);
-
-  // Polling: ask the server again every 5 seconds until the order is finished.
-  // Phase 4 replaces this with live Socket.io updates.
-  useEffect(() => {
-    let cancelled = false;
-    let timer;
-
-    async function load() {
-      try {
-        const data = await getOrder(id);
-        if (cancelled) return;
-        setOrder(data);
-        setError("");
-        if (!FINAL_STATUSES.includes(data.status)) {
-          timer = setTimeout(load, POLL_MS);
-        }
-      } catch (err) {
-        if (cancelled) return;
-        if (err.status === 404 || err.status === 400) {
-          setNotFound(true);
-          if (getLastOrderId() === id) clearLastOrderId();
-          return;
-        }
-        setError(err.message);
-        timer = setTimeout(load, POLL_MS);
-      }
-    }
-
-    load();
-    return () => {
-      cancelled = true;
-      clearTimeout(timer);
-    };
-  }, [id]);
+  const { order, error, notFound, connectionLost } = useLiveOrder(id);
 
   if (notFound) {
     return (
@@ -99,9 +62,9 @@ function OrderStatus({ id }) {
         </ol>
       )}
 
-      {error && (
+      {connectionLost && !FINAL_STATUSES.includes(order.status) && (
         <p className="text-sm text-red-600">
-          Connection problem, retrying… ({error})
+          Connection problem, reconnecting… the status may be out of date.
         </p>
       )}
 
