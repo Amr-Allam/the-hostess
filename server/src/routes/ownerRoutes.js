@@ -1,5 +1,6 @@
 import { Router } from "express";
 import * as menu from "../controllers/menuController.js";
+import * as tables from "../controllers/tableController.js";
 import * as uploads from "../controllers/uploadController.js";
 import { uploadImage } from "../middleware/upload.js";
 import { validate } from "../middleware/validate.js";
@@ -10,6 +11,7 @@ import {
   categoryBodySchema,
   menuItemBodySchema,
 } from "../validators/menu.js";
+import { tableBodySchema } from "../validators/tables.js";
 
 const router = Router();
 
@@ -50,5 +52,18 @@ router.delete(
 );
 
 router.post("/uploads", uploadImage, uploads.uploadImage);
+
+router.get("/tables", tables.listTables);
+router.post("/tables", validate({ body: tableBodySchema }), tables.createTable);
+router.put(
+  "/tables/:id",
+  validate({ params: idParamsSchema, body: tableBodySchema }),
+  tables.updateTable,
+);
+router.delete(
+  "/tables/:id",
+  validate({ params: idParamsSchema }),
+  tables.deleteTable,
+);
 
 export default router;
