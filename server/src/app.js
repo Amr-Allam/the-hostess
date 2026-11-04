@@ -9,6 +9,7 @@ import orderRoutes from "./routes/orderRoutes.js";
 import ownerRoutes from "./routes/ownerRoutes.js";
 import staffRoutes from "./routes/staffRoutes.js";
 import { notFound, errorHandler } from "./middleware/errorHandler.js";
+import reservationRoutes from "./routes/reservationRoutes.js";
 
 const app = express();
 
@@ -23,6 +24,7 @@ app.use("/api/health", healthRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/menu", menuRoutes);
 app.use("/api/orders", orderRoutes);
+app.use("/api/reservations", reservationRoutes);
 app.use("/api/owner", ownerRoutes);
 app.use("/api/staff", staffRoutes);
 
