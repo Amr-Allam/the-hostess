@@ -12,6 +12,8 @@ import {
   menuItemBodySchema,
 } from "../validators/menu.js";
 import { tableBodySchema } from "../validators/tables.js";
+import * as settings from "../controllers/settingsController.js";
+import { settingsBodySchema } from "../validators/settings.js";
 
 const router = Router();
 
@@ -64,6 +66,13 @@ router.delete(
   "/tables/:id",
   validate({ params: idParamsSchema }),
   tables.deleteTable,
+);
+
+router.get("/settings", settings.getSettings);
+router.put(
+  "/settings",
+  validate({ body: settingsBodySchema }),
+  settings.updateSettings,
 );
 
 export default router;
