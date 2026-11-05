@@ -39,8 +39,8 @@
 ## Phase 6: Owner dashboard
 
 - [x] Report endpoints (`GET /api/owner/reports/daily`, `GET /api/owner/reports/top-items`)
-- [ ] Dashboard UI with Recharts: daily sales, order count, average order value, top items (shell with section tabs and `recharts` installed; charts not built yet)
-- [ ] Owner dashboard sections: Menu management (categories, items, option groups, image upload), Reservations, Tables, Settings (tabs exist with placeholders; section content not built yet)
+- [x] Dashboard UI with Recharts: daily sales, order count, average order value, top items
+- [x] Owner dashboard sections: Menu management (categories, items, option groups, image upload), Reservations, Tables, Settings
 
 ## Notes
 

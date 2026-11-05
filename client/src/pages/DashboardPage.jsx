@@ -1,7 +1,11 @@
 import { useState } from "react";
+import MenuSection from "../features/staff/MenuSection.jsx";
+import ReportsSection from "../features/staff/ReportsSection.jsx";
+import ReservationsSection from "../features/staff/ReservationsSection.jsx";
+import SettingsSection from "../features/staff/SettingsSection.jsx";
 import StaffBar from "../features/staff/StaffBar.jsx";
+import TablesSection from "../features/staff/TablesSection.jsx";
 
-// Owner dashboard sections. Each section's content is added in its own step.
 const SECTIONS = [
   { id: "reports", label: "Reports" },
   { id: "menu", label: "Menu" },
@@ -10,13 +14,8 @@ const SECTIONS = [
   { id: "settings", label: "Settings" },
 ];
 
-function SectionPlaceholder({ label }) {
-  return <p className="text-stone-500">{label} is coming soon.</p>;
-}
-
 export default function DashboardPage() {
   const [active, setActive] = useState(SECTIONS[0].id);
-  const section = SECTIONS.find((s) => s.id === active);
 
   return (
     <>
@@ -29,22 +28,22 @@ export default function DashboardPage() {
           aria-label="Dashboard sections"
           className="flex gap-1 overflow-x-auto border-b border-stone-200"
         >
-          {SECTIONS.map((s) => (
+          {SECTIONS.map((section) => (
             <button
-              key={s.id}
+              key={section.id}
               type="button"
               role="tab"
-              id={`tab-${s.id}`}
-              aria-selected={s.id === active}
+              id={`tab-${section.id}`}
+              aria-selected={section.id === active}
               aria-controls="dashboard-panel"
-              onClick={() => setActive(s.id)}
+              onClick={() => setActive(section.id)}
               className={`-mb-px shrink-0 border-b-2 px-3 py-2 text-sm font-medium ${
-                s.id === active
+                section.id === active
                   ? "border-amber-600 text-amber-700"
                   : "border-transparent text-stone-600 hover:text-stone-900"
               }`}
             >
-              {s.label}
+              {section.label}
             </button>
           ))}
         </div>
@@ -54,7 +53,11 @@ export default function DashboardPage() {
           id="dashboard-panel"
           aria-labelledby={`tab-${active}`}
         >
-          <SectionPlaceholder label={section.label} />
+          {active === "reports" && <ReportsSection />}
+          {active === "menu" && <MenuSection />}
+          {active === "reservations" && <ReservationsSection />}
+          {active === "tables" && <TablesSection />}
+          {active === "settings" && <SettingsSection />}
         </div>
       </div>
     </>

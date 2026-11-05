@@ -36,3 +36,11 @@ export async function request(path, { method = "GET", body, token } = {}) {
   }
   return data;
 }
+
+export function errorMessage(err) {
+  const details = Array.isArray(err?.details)
+    ? err.details.map((detail) => detail.message).filter(Boolean)
+    : [];
+  if (details.length > 0) return details.join(". ");
+  return err?.message || "Request failed";
+}
