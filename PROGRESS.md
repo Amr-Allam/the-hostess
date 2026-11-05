@@ -39,8 +39,8 @@
 ## Phase 6: Owner dashboard
 
 - [x] Report endpoints (`GET /api/owner/reports/daily`, `GET /api/owner/reports/top-items`)
-- [ ] Dashboard UI with Recharts: daily sales, order count, average order value, top items
-- [ ] Owner dashboard sections: Menu management (categories, items, option groups, image upload), Reservations, Tables, Settings
+- [ ] Dashboard UI with Recharts: daily sales, order count, average order value, top items (shell with section tabs and `recharts` installed; charts not built yet)
+- [ ] Owner dashboard sections: Menu management (categories, items, option groups, image upload), Reservations, Tables, Settings (tabs exist with placeholders; section content not built yet)
 
 ## Notes
 
@@ -65,3 +65,4 @@
 - Owner reservations: `GET /api/owner/reservations?date=` (date optional; without it, today onward in `TIMEZONE`; sorted by date and start time; cancelled ones included; `table` populated as `{ _id, number }`). `PATCH /api/owner/reservations/:id/status` accepts only `{ status: "cancelled" }` through one atomic update on `confirmed` reservations (`409` if already cancelled, `404` if unknown).
 - Client booking: `ReservePage` shows the confirmation; `features/reservations/BookingForm.jsx` is one page (date + party size, then slot grid, then name and phone). Availability results are keyed by `date|partySize|refresh`; a `409` on submit bumps `refresh` to reload the slots. The date picker's `min` uses the browser's local date; the server is the authority. Customers cannot look up or cancel a reservation (not in SPEC).
 - Reports: `GET /api/owner/reports/daily?from=&to=` returns one row per local day `{ date, totalSales, orderCount, averageOrderValue }` (zero rows for days with no orders; the average is rounded to a whole piastre). `GET /api/owner/reports/top-items?from=&to=` returns the top 10 `{ menuItemId, name, quantity }` by quantity, ties by name. `from` and `to` are required, inclusive `YYYY-MM-DD` dates, at most 366 days apart (`400` otherwise). Cancelled orders are excluded and days are grouped in `TIMEZONE`. Pipelines live in `services/reports.js` and use a loose `createdAt` window (so the `{status, createdAt}` index helps) followed by an exact local-day match.
+- Owner dashboard: `DashboardPage` is a tab shell (Reports, Menu, Reservations, Tables, Settings) using local state, so a refresh returns to Reports; no extra routes. `api/client.js` `request` sends a `FormData` body as multipart (no `Content-Type` header, no `JSON.stringify`) for image uploads.
