@@ -21,3 +21,12 @@ export const createReservationBodySchema = z.object({
   date,
   startTime: z.string().regex(TIME, "Use HH:mm"),
 });
+
+export const ownerReservationsQuerySchema = z.object({
+  date: date.optional(),
+});
+
+// Cancelling is the only status change SPEC allows for reservations.
+export const cancelReservationBodySchema = z.object({
+  status: z.literal("cancelled"),
+});

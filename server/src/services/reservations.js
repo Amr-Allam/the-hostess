@@ -103,3 +103,30 @@ export async function createReservation(body) {
     table: { _id: table._id, number: table.number },
   };
 }
+
+// Owner list: one date, or everything from today onward. Cancelled ones included.
+export function listReservations({ date }) {
+  const filter = date
+    ? { date }
+    : { date: { $gte: todayInTimezone(env.TIMEZONE) } };
+  return Reservation.find(filter)
+    .sort({ date: 1, startMinutes: 1, _id: 1 })
+    .populate("table", "number")
+    .lean();
+}
+
+export async function cancelReservation(id) {
+  // One atomic update filtered on "confirmed", so two simultaneous cancels
+  // cannot both succeed.
+  const reservation = await Reservation.findOneAndUpdate(
+    { _id: id, status: "confirmed" },
+    { status: "cancelled" },
+    { returnDocument: "after", runValidators: true },
+  ).populate("table", "number");
+
+  if (reservation) return reservation;
+  if (await Reservation.exists({ _id: id })) {
+    throw httpError(409, "Reservation is already cancelled");
+  }
+  throw httpError(404, "Reservation not found");
+}

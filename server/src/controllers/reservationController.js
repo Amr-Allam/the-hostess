@@ -10,3 +10,11 @@ export async function createReservation(req, res) {
   );
   res.status(201).json(reservation);
 }
+
+export async function listReservations(req, res) {
+  res.json(await reservationService.listReservations(req.validated.query));
+}
+
+export async function cancelReservation(req, res) {
+  res.json(await reservationService.cancelReservation(req.validated.params.id));
+}

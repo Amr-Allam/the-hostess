@@ -14,6 +14,11 @@ import {
 import { tableBodySchema } from "../validators/tables.js";
 import * as settings from "../controllers/settingsController.js";
 import { settingsBodySchema } from "../validators/settings.js";
+import * as reservations from "../controllers/reservationController.js";
+import {
+  cancelReservationBodySchema,
+  ownerReservationsQuerySchema,
+} from "../validators/reservations.js";
 
 const router = Router();
 
@@ -73,6 +78,17 @@ router.put(
   "/settings",
   validate({ body: settingsBodySchema }),
   settings.updateSettings,
+);
+
+router.get(
+  "/reservations",
+  validate({ query: ownerReservationsQuerySchema }),
+  reservations.listReservations,
+);
+router.patch(
+  "/reservations/:id/status",
+  validate({ params: idParamsSchema, body: cancelReservationBodySchema }),
+  reservations.cancelReservation,
 );
 
 export default router;
