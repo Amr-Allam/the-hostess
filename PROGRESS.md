@@ -30,6 +30,12 @@
 - [x] Kitchen display with live orders and status buttons
 - [x] Customer status page updates live
 
+## Phase 5: Reservations
+
+- [x] Tables CRUD (`/api/owner/tables`) and settings (`GET`/`PUT /api/owner/settings`): API only, owner UI is Phase 6
+- [x] Availability endpoint and booking form
+- [x] Owner reservation list with cancel (`/api/owner/reservations`): API only, owner UI is Phase 6
+
 ## Notes
 
 - Routes: validate({ body, query, params }) puts checked data on `req.validated`; controllers read only from it.
@@ -46,3 +52,9 @@
 - Realtime: `sockets/index.js` attaches Socket.io to the HTTP server in `server.js`. A connection with no token is a customer; a valid kitchen/owner token joins the `kitchen` room; an invalid or expired token is refused. Controllers call `emitOrderNew` / `emitOrderUpdated` after the database write; the helpers do nothing if sockets aren't initialized. `order:join` takes an optional acknowledgment (sent even for an invalid id) and ignores invalid ids. The token is checked once at connect, so a socket open past expiry keeps receiving until it reconnects.
 - Staff orders: `GET /api/staff/orders?status=active` (`status` must be `active`; oldest first) and `PATCH /api/staff/orders/:id/status` (`400` bad id or status, `404` unknown, `409` forbidden transition). The update is one atomic `findOneAndUpdate` filtered by the allowed source statuses, so simultaneous updates can't both succeed. Transition rules live in `services/orders.js`.
 - Client realtime: `lib/socket.js` (`createSocket(token?)`), one connection per page, closed on cleanup. `useKitchenOrders` refetches the active list on every connect; `useLiveOrder` joins the order's room, waits for the acknowledgment, then fetches. Both ignore older copies by `updatedAt`. `OrderStatusPage` no longer polls and closes its socket once the order is served or cancelled.
+- Tables: `/api/owner/tables` is owner CRUD. A duplicate `number` returns `409` (the unique-index error `11000` is translated in `services/tables.js`). Deleting a table that any reservation references returns `409`.
+- Settings: `GET`/`PUT /api/owner/settings`. `PUT` replaces the whole document (all 7 days plus both minute fields). Each non-closed day needs `open < close` (no overnight hours); slot length and duration are integers 1-1440. A missing settings document returns `503` (`npm run seed` creates it).
+- Availability: `services/availability.js` holds pure functions (`generateSlots`, `pickTable`, `listSlots`), the Phase 7 test targets. `utils/time.js` holds the timezone and date helpers (uses `TIMEZONE`). `GET /api/reservations/availability?date=&partySize=` returns `[{ startTime, available }]`: `[]` for a closed day, `400` for a past or invalid date, and slots that have already started today are `available: false`. `partySize` is 1-100. Limited by `availabilityLimiter` (120 per 15 min per IP).
+- Booking: `POST /api/reservations` (limited by `reservationLimiter`, 20 per 15 min per IP) returns `201` with the reservation and `table: { _id, number }`. `400` for a past date, closed day, a `startTime` that is not a generated slot, or a slot already started today; `409` when no table is free or none is large enough. The table is the smallest free one that fits. The availability re-check is a fresh read right before the insert, not atomic, so two simultaneous requests could double-book (accepted for v1). Phone: 8-20 characters of digits, spaces, `+`, `-`, `(`, `)`.
+- Owner reservations: `GET /api/owner/reservations?date=` (date optional; without it, today onward in `TIMEZONE`; sorted by date and start time; cancelled ones included; `table` populated as `{ _id, number }`). `PATCH /api/owner/reservations/:id/status` accepts only `{ status: "cancelled" }` through one atomic update on `confirmed` reservations (`409` if already cancelled, `404` if unknown).
+- Client booking: `ReservePage` shows the confirmation; `features/reservations/BookingForm.jsx` is one page (date + party size, then slot grid, then name and phone). Availability results are keyed by `date|partySize|refresh`; a `409` on submit bumps `refresh` to reload the slots. The date picker's `min` uses the browser's local date; the server is the authority. Customers cannot look up or cancel a reservation (not in SPEC).
