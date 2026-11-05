@@ -42,6 +42,13 @@
 - [x] Dashboard UI with Recharts: daily sales, order count, average order value, top items
 - [x] Owner dashboard sections: Menu management (categories, items, option groups, image upload), Reservations, Tables, Settings
 
+## Phase 7: Polish and deploy
+
+- [ ] Mobile responsiveness, loading and error states across public and staff flows
+- [ ] Tests for order pricing and reservation availability
+- [x] Deploy to Atlas, Railway, and Vercel; public menu and staff login route are live
+- [x] Generate the QR code from the live URL (`hostess-qr.png`)
+
 ## Notes
 
 - Routes: validate({ body, query, params }) puts checked data on `req.validated`; controllers read only from it.

@@ -18,7 +18,7 @@ Customers scan one QR code (or visit the site) to view the menu, order, and rese
 | Server   | Node.js + Express, Mongoose, Zod, jsonwebtoken, bcrypt, helmet, cors, express-rate-limit, socket.io |
 | Database | MongoDB Atlas                                                                                       |
 | Images   | Cloudinary (server uploads via multer)                                                              |
-| Hosting  | Vercel (client), Render (server)                                                                    |
+| Hosting  | Vercel (client), Railway (server)                                                                    |
 | Language | JavaScript (ES modules) on both sides                                                               |
 
 ## 3. Folder structure
@@ -272,4 +272,4 @@ Mark each item done in PROGRESS.md.
 
 - Mobile responsiveness, loading and error states
 - Tests for order pricing and reservation availability
-- Deploy to Atlas, Render, Vercel; generate the QR code from the live URL
+- Deploy to Atlas, Railway, and Vercel; generate the QR code from the live URL
