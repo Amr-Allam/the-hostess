@@ -15,6 +15,8 @@ import { tableBodySchema } from "../validators/tables.js";
 import * as settings from "../controllers/settingsController.js";
 import { settingsBodySchema } from "../validators/settings.js";
 import * as reservations from "../controllers/reservationController.js";
+import * as reports from "../controllers/reportController.js";
+import { reportRangeQuerySchema } from "../validators/reports.js";
 import {
   cancelReservationBodySchema,
   ownerReservationsQuerySchema,
@@ -89,6 +91,17 @@ router.patch(
   "/reservations/:id/status",
   validate({ params: idParamsSchema, body: cancelReservationBodySchema }),
   reservations.cancelReservation,
+);
+
+router.get(
+  "/reports/daily",
+  validate({ query: reportRangeQuerySchema }),
+  reports.getDailyReport,
+);
+router.get(
+  "/reports/top-items",
+  validate({ query: reportRangeQuerySchema }),
+  reports.getTopItems,
 );
 
 export default router;

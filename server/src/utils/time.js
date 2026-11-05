@@ -60,3 +60,23 @@ export function nowMinutes(timeZone, now = new Date()) {
   const p = localParts(timeZone, now);
   return Number(p.hour) * 60 + Number(p.minute);
 }
+
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+// Number of calendar days from `from` to `to`, both included ("YYYY-MM-DD", from <= to).
+export function dayCount(from, to) {
+  return (
+    Math.round(
+      (Date.parse(`${to}T00:00:00Z`) - Date.parse(`${from}T00:00:00Z`)) /
+        DAY_MS,
+    ) + 1
+  );
+}
+
+// Every date from `from` to `to`, both included, as "YYYY-MM-DD" strings.
+export function eachDate(from, to) {
+  const start = Date.parse(`${from}T00:00:00Z`);
+  return Array.from({ length: dayCount(from, to) }, (_, i) =>
+    new Date(start + i * DAY_MS).toISOString().slice(0, 10),
+  );
+}
