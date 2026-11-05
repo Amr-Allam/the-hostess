@@ -24,6 +24,12 @@ export const orderLimiter = createLimiter({
   message: "Too many orders, please try again later",
 });
 
+export const reservationLimiter = createLimiter({
+  windowMs: 15 * 60 * 1000,
+  limit: 20,
+  message: "Too many reservation requests, please try again later",
+});
+
 // Looser still: the booking form asks again on every date or party-size change.
 export const availabilityLimiter = createLimiter({
   windowMs: 15 * 60 * 1000,
