@@ -13,7 +13,7 @@ import reservationRoutes from "./routes/reservationRoutes.js";
 
 const app = express();
 
-// Behind Render's proxy: use the real client IP (needed for rate limiting).
+// Behind Railway's proxy: use the real client IP (needed for rate limiting).
 app.set("trust proxy", 1);
 
 app.use(helmet());

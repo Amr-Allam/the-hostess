@@ -32,9 +32,9 @@
 
 ## Phase 5: Reservations
 
-- [x] Tables CRUD (`/api/owner/tables`) and settings (`GET`/`PUT /api/owner/settings`): API only, owner UI is Phase 6
+- [x] Tables CRUD (`/api/owner/tables`) and settings (`GET`/`PUT /api/owner/settings`); owner UI done in Phase 6
 - [x] Availability endpoint and booking form
-- [x] Owner reservation list with cancel (`/api/owner/reservations`): API only, owner UI is Phase 6
+- [x] Owner reservation list with cancel (`/api/owner/reservations`); owner UI done in Phase 6
 
 ## Phase 6: Owner dashboard
 
@@ -46,6 +46,8 @@
 
 - [ ] Mobile responsiveness, loading and error states across public and staff flows
 - [ ] Tests for order pricing and reservation availability
+- [ ] `scripts/create-user.js`
+- [x] Check the live site end to end: kitchen login, live orders over sockets, owner dashboard (`CLIENT_URL` must match the Vercel URL)
 - [x] Deploy to Atlas, Railway, and Vercel; public menu and staff login route are live
 - [x] Generate the QR code from the live URL (`hostess-qr.png`)
 
@@ -72,4 +74,4 @@
 - Owner reservations: `GET /api/owner/reservations?date=` (date optional; without it, today onward in `TIMEZONE`; sorted by date and start time; cancelled ones included; `table` populated as `{ _id, number }`). `PATCH /api/owner/reservations/:id/status` accepts only `{ status: "cancelled" }` through one atomic update on `confirmed` reservations (`409` if already cancelled, `404` if unknown).
 - Client booking: `ReservePage` shows the confirmation; `features/reservations/BookingForm.jsx` is one page (date + party size, then slot grid, then name and phone). Availability results are keyed by `date|partySize|refresh`; a `409` on submit bumps `refresh` to reload the slots. The date picker's `min` uses the browser's local date; the server is the authority. Customers cannot look up or cancel a reservation (not in SPEC).
 - Reports: `GET /api/owner/reports/daily?from=&to=` returns one row per local day `{ date, totalSales, orderCount, averageOrderValue }` (zero rows for days with no orders; the average is rounded to a whole piastre). `GET /api/owner/reports/top-items?from=&to=` returns the top 10 `{ menuItemId, name, quantity }` by quantity, ties by name. `from` and `to` are required, inclusive `YYYY-MM-DD` dates, at most 366 days apart (`400` otherwise). Cancelled orders are excluded and days are grouped in `TIMEZONE`. Pipelines live in `services/reports.js` and use a loose `createdAt` window (so the `{status, createdAt}` index helps) followed by an exact local-day match.
-- Owner dashboard: `DashboardPage` is a tab shell (Reports, Menu, Reservations, Tables, Settings) using local state, so a refresh returns to Reports; no extra routes. `api/client.js` `request` sends a `FormData` body as multipart (no `Content-Type` header, no `JSON.stringify`) for image uploads.
+- Owner dashboard: `DashboardPage` is a tab shell (Reports, Menu, Reservations, Tables, Settings) using local state, so a refresh returns to Reports; no extra routes. `api/client.js` `request` sends a `FormData` body as multipart (no `Content-Type` header, no `JSON.stringify`) for image uploads. The Menu, Reservations, Tables and Settings sections are in `features/staff/*Section.jsx` and call the existing owner endpoints through `api/owner.js`. Prices are entered in major units and converted with `parsePriceInput`/`formatPriceInput`.
