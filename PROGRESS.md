@@ -45,7 +45,7 @@
 ## Phase 7: Polish and deploy
 
 - [ ] Mobile responsiveness, loading and error states across public and staff flows
-- [ ] Tests for order pricing and reservation availability
+- [x] Tests for order pricing and reservation availability
 - [ ] `scripts/create-user.js`
 - [x] Check the live site end to end: kitchen login, live orders over sockets, owner dashboard (`CLIENT_URL` must match the Vercel URL)
 - [x] Deploy to Atlas, Railway, and Vercel; public menu and staff login route are live
